@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="A researcher! A dreamer!"><title>iOS kernel heap review 5-10 | Siyang's Depot</title><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/4.2.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.0/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">iOS kernel heap review 5-10</h1><a id="logo" href="/.">Siyang's Depot</a><p class="description">Proverbs 4:23</p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">iOS kernel heap review 5-10</h1><div class="post-meta">Sep 23, 2016<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><a data-disqus-identifier="2016/09/23/iOS-kernel-heap-review-5-10/" href="/2016/09/23/iOS-kernel-heap-review-5-10/#disqus_thread" class="disqus-comment-count"></a><div class="post-content"><p>These article is originally from Stefan Esser’s iOS10 kernel Heap Revisited. I record it with my understandings and for future reference.</p>
+<h2 id="Kernel-Zone-Heap-Allocator"><a href="#Kernel-Zone-Heap-Allocator" class="headerlink" title="Kernel Zone Heap Allocator"></a>Kernel Zone Heap Allocator</h2><p>Some features:</p>
+<ul>
+<li>most used heap allocator in kernel</li>
+<li>memory is divided into zones</li>
+<li>zones group allocations of same type/size together</li>
+<li>all allocations in one zone are same size</li>
+<li>caller decides what zone is allocated from/free to<ul>
+<li>ptr = zalloc(zone)</li>
+<li>zfree(zone, ptr)</li>
+</ul>
+</li>
+<li>size of allocated block depends on zone</li>
+<li>no variable length allocations</li>
+</ul>
+<h3 id="Tool-zprint-check-allocation"><a href="#Tool-zprint-check-allocation" class="headerlink" title="Tool: zprint check allocation"></a>Tool: zprint check allocation</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iPhone68:~ root# zprint</div><div class="line">zprint: mach_zone_info: (os/kern) invalid host</div></pre></td></tr></table></figure>
+<p>on mac os:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ sudo zprint</div><div class="line">Password:</div><div class="line">                        elem         cur         max        cur         max         cur  alloc  alloc    </div><div class="line">zone name               size        size        size      #elts       #elts       inuse   size  count    </div><div class="line">---------------------------------------------------------------------------------------------------------</div><div class="line">zones                    288         64K         54K        227         192         215    20K     71    </div><div class="line">vm.objects               240      47648K      66430K     203298      283435      189033     4K     17   C</div><div class="line">vm.object.hash.entries    40       6288K       8748K     160972      223948      148549     4K    102   C</div><div class="line">maps                     248         84K         90K        346         371         281     8K     33    </div><div class="line">VM.map.entries            80      10340K      11664K     132352      149299      115465    20K    256   C</div><div class="line">Reserved.VM.map.entries   80         48K       2560K        614       32768          63     4K     51    </div><div class="line">VM.map.copies             88         16K         16K        186         186           0     8K     93   C</div><div class="line">VM.map.holes              32        336K         16K      10752         512        8570     4K    128   C</div><div class="line">pmap                     368        120K        144K        333         400         271     4K     11   C</div><div class="line">pagetable.anchors       4096       1088K       1751K        272         437         271     4K      1   C</div><div class="line">pv_list                   48      51060K      61240K    1089280     1306459     1089168    12K    256   C</div><div class="line">vm.pages                  64     127944K          0K    2047104           0     2044250     4K     64 X C</div><div class="line">kalloc.16                 16        884K       1167K      56576       74733       49865     4K    256   C</div><div class="line">kalloc.32                 32       2248K       2627K      71936       84075       69614     4K    128   C</div><div class="line">kalloc.48                 48       3696K       3941K      78848       84075       71654     4K     85   C</div><div class="line">kalloc.64                 64       7096K       8867K     113536      141877      101325     4K     64   C</div></pre></td></tr></table></figure></p>
+<h3 id="What-is-Zone-memory"><a href="#What-is-Zone-memory" class="headerlink" title="What is Zone memory?"></a>What is Zone memory?</h3><p>Kernel reserves a memory region called zone_map for zone allocator, the default size of this region is 1/4 of the physical memory, it’s reserved very early on during kernel start.<br>Pages from <strong>zone_map</strong> are assigned to zones, zones are grown by their allocation size. Kernel pages are 16kb on new 64 bit device with lots of memory and 4kb on all other devices. To waste less space zones use optimal allocation sizes &gt;= 1 page.</p>
+<h4 id="Dynamic-Length-Allocations"><a href="#Dynamic-Length-Allocations" class="headerlink" title="Dynamic Length Allocations?"></a>Dynamic Length Allocations?</h4><p>Zone allocator is not suited for dynamic length allocations. But there’re various wrappers to do this. e.g.:</p>
+<ul>
+<li>kalloc(size)/kfree(ptr,<strong>size</strong>) - wrapper around zalloc()</li>
+<li>MALLOC(size)/FREE(ptr) - wrapper around kalloc()</li>
+</ul>
+<h3 id="Kernel-Heap-Allocation-Debugging"><a href="#Kernel-Heap-Allocation-Debugging" class="headerlink" title="Kernel Heap Allocation Debugging"></a>Kernel Heap Allocation Debugging</h3><p>iOS has kernel boot arguments to enable heap allocation debugging.</p>
+<ul>
+<li>-zc selects zone corruption logging mode</li>
+<li>zlog=<zonename> selects ONE zone to log</zonename></li>
+<li>zrecs=<number> controls how many log entries should be kept<br>But need a kernel exploit to activate kernel boot arguments.[^1]</number></li>
+</ul>
+<p>Kernel zone allocator corruption logging logs for all (de)allocations: if allocation or deallocation; pointer allocated/deallocated; kernel backtrace with up to 15 elements. Data is collected via <strong>btlog</strong> routines in kernel. Need to create custermized routine to extract data from kernel.</p>
+<h3 id="Zone-Struct"><a href="#Zone-Struct" class="headerlink" title="Zone Struct"></a>Zone Struct</h3><p>Zone structs are stored in heap zone “zones”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">struct zone &#123;</div><div class="line">int count; /* Number of elements used now */</div><div class="line">vm_offset_t free_elements;</div><div class="line">decl_lck_mtx_data(,lock) /* zone lock */</div><div class="line">lck_mtx_ext_t lock_ext; /* placeholder for indirect mutex */</div><div class="line">lck_attr_t lock_attr; /* zone lock attribute */</div><div class="line">lck_grp_t lock_grp; /* zone lock group */</div><div class="line">lck_grp_attr_t lock_grp_attr; /* zone lock group attribute */</div><div class="line">vm_size_t cur_size; /* current memory utilization */</div><div class="line">vm_size_t max_size; /* how large can this zone grow */</div><div class="line">vm_size_t elem_size; /* size of an element */</div><div class="line">vm_size_t alloc_size; /* size used for more memory */</div><div class="line">uint64_t sum_count; /* count of allocs (life of zone) */</div><div class="line">unsigned int</div><div class="line">/* boolean_t */ exhaustible :1, /* (F) merely return if empty? */</div><div class="line">/* boolean_t */ collectable :1, /* (F) garbage collect empty pages */</div><div class="line">/* boolean_t */ expandable :1, /* (T) expand zone (with message)? */</div><div class="line">/* boolean_t */ allows_foreign :1,/* (F) allow non-zalloc space */</div><div class="line">/* boolean_t */ doing_alloc :1, /* is zone expanding now? */</div><div class="line">/* boolean_t */ waiting :1, /* is thread waiting for expansion? */</div><div class="line">/* boolean_t */ async_pending :1, /* asynchronous allocation pending? */</div><div class="line">/* boolean_t */ caller_acct: 1, /* do we account allocation/free to the caller? */</div><div class="line">/* boolean_t */ doing_gc :1, /* garbage collect in progress? */</div><div class="line">/* boolean_t */ noencrypt :1,</div><div class="line">/* boolean_t */ no_callout:1,</div><div class="line">/* boolean_t */ async_prio_refill:1;</div><div class="line">int index; /* index into zone_info arrays for this zone */</div><div class="line">struct zone * next_zone; /* Link for all-zones list */</div><div class="line">call_entry_data_t call_async_alloc; /* callout for asynchronous alloc */</div><div class="line">const char *zone_name; /* a name for the zone */</div><div class="line">vm_size_t prio_refill_watermark;</div><div class="line">thread_t zone_replenish_thread;</div><div class="line">&#125;;  // from os x 10.7.5</div></pre></td></tr></table></figure></p>
+<h4 id="Free-Memory-Blocks"><a href="#Free-Memory-Blocks" class="headerlink" title="Free Memory Blocks"></a>Free Memory Blocks</h4><ul>
+<li>free elements are kept in a single linked freelist per zone</li>
+<li>zone structure has free_elements pointer to head of freelist</li>
+<li>free elements have a pointer to next freeelement in beginning</li>
+<li>there is no pointer(-chain) back to zone struct<ul>
+<li>not possible to know what zone an element (a page) belongs to</li>
+<li>slow garbage collection</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://razygon.github.io/images/iOS-kernel-heap-review-freelementlink.png" alt="iOS-kernel-heap-review-free element link-image"></p>
+<h4 id="Allocation"><a href="#Allocation" class="headerlink" title="Allocation"></a>Allocation</h4><p>allocation will return next element from freelist, when free list is empty, zone grows by allocation size. All elements in added pages are added to free list. Last element will be first in freelist.</p>
+<h5 id="Dynamic-kalloc"><a href="#Dynamic-kalloc" class="headerlink" title="Dynamic, kalloc()"></a>Dynamic, kalloc()</h5><p>kalloc() registers multiple zones, named kalloc.<number>, e.g. kalloc.128 for 128 allocations.<br>Allocations will be put into the next larger zone, e.g. 97 bytes allocations in kalloc.128.<br>Different iOS version, different bit(32/64) define different zones.<br>Caller needs to remember allocation size so that kfree(ptr,size) can put it back into the right zone.</number></p>
+<h5 id="Dynamic-MALLOC"><a href="#Dynamic-MALLOC" class="headerlink" title="Dynamic, MALLOC()"></a>Dynamic, MALLOC()</h5><p>MALLOC() stores the size as meta data and stores the size in front of data. Internally uses kalloc()/kfree().<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-MALLOC.png" alt="iOS-kernel-heap-review-MALLOC-image"></p>
+<h5 id="Attacks-to-iOS5-Zone-Allocator"><a href="#Attacks-to-iOS5-Zone-Allocator" class="headerlink" title="Attacks to iOS5 Zone Allocator"></a>Attacks to iOS5 Zone Allocator</h5><p><strong>Heap-Feng-Shui</strong>, exploit specific allocation and deallocation primitives(e.g. opening/closing NDRV sockets); generic allocation deallocation primitives via OSUnserializeXML(controlling memory layout via many IOKit API functions using XML - and filling it with objects and object pointers)<br><strong>Corruption Targets</strong>, zone allocator freelist next_ptr pointers(control ptr next allocation will return and overwrite with attacker controlled data); size fields of elements allocated via MALLOC() or a wrapper(tricks kfree() to put element into a zone that is for bigger elements - next allocation will<br>result in a larger bufferoverflow); application data(control objects/vtable pointers, object pointers, size fields, …)</p>
+<h3 id="Changes"><a href="#Changes" class="headerlink" title="Changes"></a>Changes</h3><h4 id="iOS-6"><a href="#iOS-6" class="headerlink" title="iOS 6"></a>iOS 6</h4><ul>
+<li>Apple made some changes to OSUnserializeXML that had little impact on usability for heap feng shui.</li>
+<li>location of zone_map is randomized due to KASLR</li>
+<li>single linked freelist now protected by heap cookies/canaries<ul>
+<li>iOS creates two random cookies<ul>
+<li>zp_nopoison_cookie(lowest bit cleared)</li>
+<li>zp_poisoned_cookie(lowest bit set)</li>
+</ul>
+</li>
+<li>last bytes of a free element will be overwritten with <strong>ptr^cookie</strong></li>
+<li>allocation code will detect illegal cookie values and <strong>panic()</strong></li>
+<li>protection against overflows and other ptr corruption<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-cookieleakprotection.png" alt="iOS-kernel-heap-review-cookieleakprotection-image"></li>
+</ul>
+</li>
+<li>small free memory blocks are now poisoned<ul>
+<li>small blocks when freed get overwritten with Oxdeadbeef</li>
+<li>indicated by use of <strong>zp_poisoned_cookie</strong></li>
+<li>on allocation 0xdeadbeef is verified - <strong>panic()</strong> if modified<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-smallblockspoisoned.png" alt="iOS-kernel-heap-review-smallblockspoisoned-image"></li>
+</ul>
+</li>
+</ul>
+<h5 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h5><p><strong>Heap-Feng-Shui</strong><br>Create <strong>vm_map_copy_t</strong> structures by sending mach messages with OOL data became heap-feng-shui method of choice.<br>Previously used methods less often seen but still possible.<br><strong>Corruption Target</strong><br>Target <strong>vm_map_copy_t</strong> structure overwrites, could be used for arbitrary info leak and kfree() confusion.</p>
+<h4 id="iOS-7"><a href="#iOS-7" class="headerlink" title="iOS 7"></a>iOS 7</h4><ul>
+<li>Poisoning larger blocks every <strong>n</strong> frees</li>
+<li>Introduction of new heap pagelist feature(for easier GC)</li>
+<li><strong>zp_factor</strong> debugging feature(that already existed existed before) is now always activated</li>
+<li>randomly set once at boot time to the value 15(25%), 16 (50%) or 17 (25%) (n?)</li>
+<li>Controls after every how many frees in a zone a single block is poisoned(regardless of size)</li>
+<li>Counter is zone specific in the <strong>zp_count</strong> field of the zone structure</li>
+<li><p>Introduces <strong>new pagelist feature</strong></p>
+<ul>
+<li>activated via bit in zone struct (only subset of <strong>zones use new</strong> feature)</li>
+<li><p>adds <strong>meta data</strong> at end of all pages inside a zone<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-pageswithmetadata.png" alt="iOS-kernel-heap-review-pageswithmetadata-image"></p>
+<ul>
+<li>meta data<ul>
+<li>backpointer to <strong>zone</strong></li>
+<li>free <strong>elements</strong> in this page(page local freelist)</li>
+<li>forward and backward pointer to other <strong>pages</strong></li>
+<li><strong>alloc_count</strong> - max number of elements in page</li>
+<li><strong>free_count</strong> - number of free elements in page<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-metadatastruc.png" alt="iOS-kernel-heap-review-metadatastruc-image"></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>keeps all pages in one of four <strong>double linked lists</strong> (queue)</p>
+</li>
+<li>Allocator defines <strong>4</strong> queues for every zone<ul>
+<li><strong>any_free_foreign</strong> - for the few zones that allow foreign elements</li>
+<li><strong>intermediate</strong> - for pages that are partially allocated at the moment</li>
+<li><strong>all_free</strong> - for pages that are completely free at the moment</li>
+<li><strong>all_used</strong> - for pages that are completely allocated at the moment</li>
+</ul>
+</li>
+<li>during allocation or free the allocator ensures that page is always on the right queue, allocation now traverses the page queues in the following order:<ul>
+<li>any_free_foreign</li>
+<li>intermediate</li>
+<li>all_free<br>if first queue with a usable page is used, then the first free element from this page’s freelist is returned; if no usable page found, system adds an all_free page and retries.<br>Page could be moved:</li>
+<li>from <strong>intermediate</strong> to <strong>all_free</strong></li>
+<li>from <strong>all_used</strong> to <strong>intermediate</strong><br>Meta data contained **double linked list without any exploit mitigation made heap overflows very easy to exploit.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="Attack-1"><a href="#Attack-1" class="headerlink" title="Attack"></a>Attack</h5><p>Confusing allocator to free elements from page list zones in greelist zones.<br><strong>Example</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">• Apple added code that detects for page list zones if a corruption happened</div><div class="line">• when they detect a corruption they try to repair it &lt;—— NEVER EVER DO THAT!</div><div class="line">• when they cannot repair they ignore that they detected a memory corruption &lt;—— APPLE REALLY???</div><div class="line">if (zone-&gt;use_page_list) &#123;</div><div class="line">    struct zone_page_metadata *page_meta = get_zone_page_metadata((struct zone_free_element *)addr);</div><div class="line">    if (zone != page_meta-&gt;zone) &#123;</div><div class="line">        /*</div><div class="line">        * Something bad has happened. Someone tried to zfree a pointer but the metadata says it is from</div><div class="line">        * a different zone (or maybe it&apos;s from a zone that doesn&apos;t use page free lists at all). We can repair</div><div class="line">        * some cases of this, if:</div><div class="line">        * 1) The specified zone had use_page_list, and the true zone also has use_page_list set. In that case</div><div class="line">        * we can swap the zone_t</div><div class="line">        * 2) The specified zone had use_page_list, but the true zone does not. In this case page_meta is garbage,</div><div class="line">        * and dereferencing page_meta-&gt;zone might panic.</div><div class="line">        * To distinguish the two, we enumerate the zone list to match it up.</div><div class="line">        * We do not handle the case where an incorrect zone is passed that does not have use_page_list set,</div><div class="line">        * even if the true zone did have this set.</div><div class="line">        */</div><div class="line">        zone_t fixed_zone = NULL;</div><div class="line">        int fixed_i, max_zones;</div><div class="line">        simple_lock(&amp;all_zones_lock);</div><div class="line">        max_zones = num_zones;</div><div class="line">        fixed_zone = first_zone;</div><div class="line">        simple_unlock(&amp;all_zones_lock);</div><div class="line">        for (fixed_i=0; fixed_i &lt; max_zones; fixed_i++, fixed_zone = fixed_zone-&gt;next_zone) &#123;</div><div class="line">            if (fixed_zone == page_meta-&gt;zone &amp;&amp; fixed_zone-&gt;use_page_list) &#123;</div><div class="line">                /* we can fix this */</div><div class="line">                printf(&quot;Fixing incorrect zfree from zone %s to zone %s\n&quot;, zone-&gt;zone_name, fixed_zone-&gt;zone_name);</div><div class="line">                zone = fixed_zone;</div><div class="line">                break;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>Heap-Feng-Shui</strong><br>    Same methods</p>
+<p><strong>Corruption Target</strong><br>    All previously targeted areas still work<br>    but double linked lists introduced by <strong>pagelist</strong> feature easiest target<br>    (target the next/prev pointers for arbitrary writes)</p>
+<h4 id="iOS-8"><a href="#iOS-8" class="headerlink" title="iOS 8"></a>iOS 8</h4><ul>
+<li>Pagelits queue hardening<ul>
+<li>add safe unlink protection to it’s queue macros</li>
+<li>double linked lists added to iOS 7 heap are now protected (how?)</li>
+<li>heap overflow can no longer go after the queue pointers in metadata</li>
+</ul>
+</li>
+<li>Poisoning of larger blocks made less frequent(depending on size)<ul>
+<li>introduction of zp_scale feature with a default value of 4</li>
+<li>poisoning of large blocks follows now the following formula<br>  <strong>zp_factor + element_size &gt;&gt; zp_scale</strong><br>this means the larger element are in a zone the less often they are poisoned example: (15/16/17) + 256 &gt;&gt; 4 = (31/32/33)</li>
+</ul>
+</li>
+</ul>
+<h5 id="Attack-2"><a href="#Attack-2" class="headerlink" title="Attack"></a>Attack</h5><p><strong>Heap-Feng-Shui</strong><br>    Same methods</p>
+<p><strong>Corruption Target</strong><br>    All previously targeted areas still work<br>    targeting double linked lists(pagelists not possible due to safe_unlink)</p>
+<h4 id="iOS-9"><a href="#iOS-9" class="headerlink" title="iOS 9"></a>iOS 9</h4><ul>
+<li>vm_map_copy_t* hardening<ul>
+<li>its structure for kernel buffers was stripped down<ul>
+<li>data pointer removed because data should be after header</li>
+<li>secondary size field removed because that is headerlen + size<br>Personally I really don’t think this is a true harderning.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Repositioning of page metadata<br>  Shift from the end to the beginning. Possible reason: ptotect metadata against overflows</li>
+<li>Randomization of initial freelist<ul>
+<li>when new memory is added to a zone elements within are freed one by one into the freelist</li>
+<li>start with iOS9.2 the elements are no longer added linear from fist to last</li>
+<li>instead, every tiem a next elements is added, a random decision is made if the first or last element should be added. </li>
+</ul>
+</li>
+</ul>
+<h5 id="Attack-3"><a href="#Attack-3" class="headerlink" title="Attack"></a>Attack</h5><p><strong>Heap-Feng-Shui</strong><br>    Same methods</p>
+<p><strong>Corruption Target</strong><br>    All previously targeted areas still work<br>    only larger info leaks and arbitary pointer info leak stopped by “hardening”</p>
+<h4 id="iOS-10"><a href="#iOS-10" class="headerlink" title="iOS 10"></a>iOS 10</h4><ul>
+<li>more <strong>vm_map_copy_t</strong> “hardening”</li>
+<li>fixed zone structure array<ul>
+<li>zone structure are no longer allocated on zone allocator heap(WHERE?)</li>
+<li>instead stored in fixed <em>zone_array</em> in <strong>DATA::</strong>bss<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-zonestructurein_DATA_BSS.png" alt="iOS-kernel-heap-review-zonestructurein_DATA_BSS-image"></li>
+<li>so address of zone structure is now fixed, relative to kernelbase() </li>
+</ul>
+</li>
+<li><p>zone page metadata completely revamped</p>
+<ul>
+<li><strong>ALL</strong> zones make use of page metadata</li>
+<li>new <strong>zone_metadata_region</strong></li>
+<li>it is reserved in the <strong>zone_map</strong></li>
+<li>keep meta data for every single page in the <strong>zone_map</strong></li>
+<li><strong>zindex</strong> index of zone in zone_array (instead of back pointer)</li>
+<li><strong>page_count</strong> number of pages in allocation size</li>
+<li><strong>free_count</strong> number of free elements in page</li>
+<li><strong>freelist_offset</strong> offset of first free element starting from this page’s address</li>
+<li><p><strong>real_metadata_offset</strong> offset of this secondary meta data from page 0 metadata<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-zone_metadata_region.png" alt="iOS-kernel-heap-review-zone_metadata_region-image"></p>
+<p>page metadata doesn’t contain pointer to head of freelist anymore, instead <strong>freelist_offset</strong> determines byte offset of first free element in page, <strong>ptr</strong> to next free block is always XORed against <strong>nopoison_cookie</strong>, <strong>backup ptr</strong> is ptr value XORed against selected cookie(nopoison/poisoned)<br><img src="https://razygon.github.io/images/iOS-kernel-heap-review-page_metadata.png" alt="iOS-kernel-heap-review-page_metadata-image"></p>
+</li>
+</ul>
+</li>
+<li><p>page freelist pointer leak protection<br>every zone uses the new metadata allow determining correct zone by element, freeing elements into the wrong zone can be reliably detected, when this happens zfree() panics the kernel, abuse seems not possible anymore.</p>
+</li>
+<li>zalloc() wrappers add no inbound metadata anymore<ul>
+<li>new meta data can be used to determine size of elements on heap</li>
+<li>heap allocation wrappers like MALLOC() and kern_os_malloc() no longer need to store the size</li>
+<li>both become simpler wrappers around kalloc() and are therefore inlined in several places</li>
+<li>allocations are now only application data<br>(more codepaths can now be used for heap layout control)</li>
+</ul>
+</li>
+<li>zone allocator debugging features revamped<ul>
+<li>kernel heap allocation logging was revamped</li>
+<li>no longer limited to a single zone</li>
+<li>code now limited to logging in max 5 zones</li>
+<li>zones selected by new kernel boot args<br>zlog1, zlog2, zlog3, zlog4, zlog5<br>usage: -zc zlog1=kalloc.128 zlog2=kalloc.256</li>
+<li>bitfield in zone struct contains new bit 15 to select if zone_logging</li>
+<li>zone struct contains <strong>zlog_btlog</strong> variable instead of global variable</li>
+<li><strong>btlog_t</strong> structure heavily modified</li>
+<li>log is no longer a simple list but a hash table  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">unsigned __int32 gzalloc_exempt : 1;</div><div class="line">unsigned __int32 alignment_required : 1;</div><div class="line">unsigned __int32 zone_logging : 1;</div><div class="line">unsigned __int32 zone_replenishing : 1;</div><div class="line">unsigned __int32 _reserved : 15;</div><div class="line">int index;</div><div class="line">const char *zone_name;</div><div class="line">uint32_t_0 zleak_capture;</div><div class="line">uint32_t_0 zp_count;</div><div class="line">vm_size_t prio_refill_watermark;</div><div class="line">thread_t zone_replenish_thread;</div><div class="line">gzalloc_data_t gz;</div><div class="line">btlog_t *zlog_btlog;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="Attack-4"><a href="#Attack-4" class="headerlink" title="Attack"></a>Attack</h5><p><strong>Heap-Feng-Shui</strong><br>    Same methods, beside continued hardening of vm_map_copy_t<br>    code paths that use MALLOC() are now also usable for heap-feng-shui(e.g. posix_spawn())</p>
+<p><strong>Corruption Target</strong><br>    application data like object and mach port pointers very interesting<br>    BUT size field corruption to confuse free into wrong zone will trigger panic()</p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
+<li>iOS 10 Kernel Heap Revisited, Stefan Esser.</li>
+</ol>
+<p>[^1]: Always stuck here T__T.</p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="https://razygon.github.io/2016/09/23/iOS-kernel-heap-review-5-10/" data-id="citfgyfr90004pvdz382kp46j" class="article-share-link">Share</a><div class="tags"><a href="/tags/iOS/">iOS</a><a href="/tags/memory/">memory</a><a href="/tags/Zone/">Zone</a></div><div class="post-nav"><a href="/2016/09/23/Break-out-iOS-OS-X-sandbox/" class="next">Break out iOS/OS X sandbox</a></div><div id="disqus_thread"><script>var disqus_shortname = 'siyang_disqus## Your disqus_shortname, e.g. username';
+var disqus_identifier = '2016/09/23/iOS-kernel-heap-review-5-10/';
+var disqus_title = 'iOS kernel heap review 5-10';
+var disqus_url = 'https://razygon.github.io/2016/09/23/iOS-kernel-heap-review-5-10/';
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//siyang_disqus## Your disqus_shortname, e.g. username.disqus.com/count.js" async></script></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="https://razygon.github.io"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/Sandbox/" style="font-size: 15px;">Sandbox</a> <a href="/tags/iOS/" style="font-size: 15px;">iOS</a> <a href="/tags/OS-X/" style="font-size: 15px;">OS/X</a> <a href="/tags/Fuzzing/" style="font-size: 15px;">Fuzzing</a> <a href="/tags/memory/" style="font-size: 15px;">memory</a> <a href="/tags/Zone/" style="font-size: 15px;">Zone</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/09/23/iOS-kernel-heap-review-5-10/">iOS kernel heap review 5-10</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/23/Break-out-iOS-OS-X-sandbox/">Break out iOS/OS X sandbox</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/14/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-comment-o"> Recent Comments</i></div><script type="text/javascript" src="//siyang_disqus## Your disqus_shortname, e.g. username.disqus.com/recent_comments_widget.js?num_items=5&amp;hide_avatars=1&amp;avatar_size=32&amp;excerpt_length=20&amp;hide_mods=1"></script></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">© <a href="/." rel="nofollow">Siyang's Depot.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="/css/jquery.fancybox.css?v=0.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
