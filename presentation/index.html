@@ -53,7 +53,8 @@
         
 <section data-markdown>
     <script type="text/template">
-      # Python Basic Series: Web Crawler
+      # Python Basic Series
+      # Web crawling
     </script>
 </section>
 <section data-markdown>
@@ -87,9 +88,13 @@
     <script type="text/template">
       ##Review
 
-      * Learn a bit about Python in general
-      * Learn how to execute a Python script
-      * Write a little Python program and execute it
+      * Syntax 
+        * variable 
+        * function 
+        * if-else condition flow
+      * Class & Object
+      * 3rd Library 
+        * pip install
       </script>
   </section>
 
@@ -132,19 +137,25 @@
       <h3>HTTP - HyperText Transfer Protocol</h3>
 
       <ul>
-      <li> the protocol for transferring html and other world wide web data between computers</li>
-      <li> a request-response protocol, usually stateless</li>
+      <li> the protocol for transferring html and other WWW data between computers</li>
+      <li> a request-response protocol, usually stateless</li> <!--no matter you request or not it's there-->
       </ul>
 
   </section>
 
-    <section data-markdown>
-    <script type="text/template">
-      ###urlib
-      * A **URL** is an address on the WWW
-        http://www.allitebooks.com/
-        
-    </script>
+    <section >
+      <h3>urllib(2)</h3>
+      <ul>
+      <li>A <b>URL</b> is an address on the WWW</li>
+      <li>pip install urllib2</li>
+      </ul>
+      <pre><code class="python" data-trim>
+      import urllib2
+ 
+      myrequest = urllib2.Request("http://www.allitebooks.com/")
+      myresponse = urllib2.urlopen(myrequest)
+      print myresponse.read()
+      </code></pre>
   </section>
 
 </section>
@@ -161,7 +172,118 @@
     
   </ul>
   </section>
+  <section >
+    <table class="table table-bordered table-striped table-condensed">
+    <tr>
+        <td>BeautifulSoup</td>
+        <td>Scrapy</td>
+    </tr>
+    <tr>
+        <td>parsing library</td>
+  <td>web scraper framework</td>
+    </tr>
+    <tr>
+        <td>slow</td>
+        <td>fast</td>
+    </tr>
+</table>
+<img src="https://razygon.github.io/presentation/img/bs-sc.png" >
+  </section>
 
+  <section>
+    <h3>Analyze the HTML structure</h3>
+     <pre><code class="python" data-trim>
+      # Get the next page url from the current page url
+      def get_next_page_url(url):
+        page = urlopen(url)
+        soup_page = BeautifulSoup(page, 'lxml')
+        page.close()
+        # Get current page and next page tag
+        current_page_tag = soup_page.find(class_="current")
+        next_page_tag = current_page_tag.find_next_sibling()
+        # Check if the current page is the last one
+        if next_page_tag is None:
+            next_page_url = None
+        else:
+            next_page_url = next_page_tag['href']
+        return next_page_url
+      </code></pre>
+  </section>
+
+  <section>
+    <h3>Locate the book URL info</h3>
+     <pre><code class="python" data-trim>
+      def get_book_detail_urls(url):
+          page = urlopen(url)
+          soup = BeautifulSoup(page, 'lxml')
+          page.close()
+          urls = []
+          book_header_tags = soup.find_all(class_="entry-title")
+          for book_header_tag in book_header_tags:
+              urls.append(book_header_tag.a['href'])
+          return urls
+      </code></pre>
+  </section>
+
+  <section>
+    <h3>Locate the book info</h3>
+     <pre><code class="python" data-trim>
+      # Get the book detail info by book detail url
+      def get_book_detail_info(url):
+          page = urlopen(url)
+          book_detail_soup = BeautifulSoup(page, 'lxml') #a parser
+          page.close()
+          title_tag = book_detail_soup.find(class_="single-title")
+          title = title_tag.string
+          isbn_key_tag = book_detail_soup.find(text="Isbn:").parent
+          isbn_tag = isbn_key_tag.find_next_sibling()
+          isbn = isbn_tag.string.strip() # Remove the whitespace with the strip method
+          return { 'title': title, 'isbn': isbn }
+      </code></pre>
+  </section>
+
+  <section>
+    <h3>Make them run</h3>
+     <pre><code class="python" data-trim>
+      def run():
+          url = "http://www.allitebooks.com/programming/net/page/1/"
+          book_info_list = []
+          def scapping(page_url):
+              book_detail_urls = get_book_detail_urls(page_url)
+              for book_detail_url in book_detail_urls:
+                  # print(book_detail_url)
+                  book_info = get_book_detail_info(book_detail_url)
+                  print(book_info)
+                  book_info_list.append(book_info)
+                  if(len(book_info_list)>6):
+                      return
+              next_page_url = get_next_page_url(page_url)
+              if next_page_url is not None:
+                  scapping(next_page_url)
+              else:
+                  return
+      
+          scapping(url)
+          print(len(book_info_list))
+          save_to_csv(book_info_list)
+      </code></pre>
+  </section>
+
+  <section>
+    <h3>Last thing!!----save</h3>
+     <pre><code class="python" data-trim>
+      def save_to_csv(booklist):
+          with open('books.csv', 'w') as fp:
+              a = csv.writer(fp, delimiter=',')
+              a.writerow(['title','isbn'])
+              a.writerows(booklist)
+      </code></pre>
+  </section>
+ <section data-markdown>
+    <script type="text/template">
+  ##break
+    </script>
+  </section>
 
 </section>
 
@@ -180,16 +302,30 @@
 
   <section data-markdown>
     <script type="text/template">
-  Web-Crawling is difficult for some annoying (i.e. not particularly intellectually challenging) reasons:
-
-  * Web pages change frequently and will break your code.
-  * Web page source code is often not logical and consistent (major browsers are incredibly good at overlooking this, but python and your own code probably aren't).
-  * Content may be different for different User Agents (which client you're using).
-  * Content may be hidden behind logins, require cookies or other fancier browser options, etc.
-  * Websites may attempt to limit automated crawling of their pages (robots.txt) — your code may have to go out of its way to be nice, or risk getting banned.
+  ###Pros
+  * automated
+  * fast
+  * reusable
     </script>
   </section>
 
+  <section data-markdown>
+    <script type="text/template">
+  ###Cons
+
+  * Web pages change frequently and will break your code.
+  * Not logical and consistent 
+  * Content may be different for different User Agents 
+  * Require login,cookies or other fancier browser options, etc.
+  * Anti-crawler
+
+    </script>
+  </section>
+  <!--* Web pages change frequently and will break your code.
+  * Web page source code is often not logical and consistent (major browsers are incredibly good at overlooking this, but python and your own code probably aren't).
+  * Content may be different for different User Agents (which client you're using).
+  * Content may be hidden behind logins, require cookies or other fancier browser options, etc.
+  * Websites may attempt to limit automated crawling of their pages (robots.txt) — your code may have to go out of its way to be nice, or risk getting banned.-->
 </section>
 
 
