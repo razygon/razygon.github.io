@@ -4,10 +4,10 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Python 101</title>
+		<title>Python Basic Series: Web crawling</title>
 
-		<meta name="description" content="Slides featuring a quick introduction to the Python programming language">
-		<meta name="author" content="Martin Brochhaus">
+		<meta name="description" content="Slides featuring a quick introduction to web crawling by Python">
+		<meta name="author" content="Siyang Xiong">
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -89,9 +89,12 @@
       ##Review
 
       * Syntax 
-        * variable 
+        * variable
+          int, string, list, dict  
         * function 
-        * if-else condition flow
+          def, class function
+        * control flow
+          if-else, while, for
       * Class & Object
       * 3rd Library 
         * pip install
@@ -151,7 +154,6 @@
       </ul>
       <pre><code class="python" data-trim>
       import urllib2
- 
       myrequest = urllib2.Request("http://www.allitebooks.com/")
       myresponse = urllib2.urlopen(myrequest)
       print myresponse.read()
@@ -173,6 +175,7 @@
   </ul>
   </section>
   <section >
+    <img src="https://razygon.github.io/presentation/img/bs-sc.png" style="max-width: 250px; border-radius: 10px;" >
     <table class="table table-bordered table-striped table-condensed">
     <tr>
         <td>BeautifulSoup</td>
@@ -187,11 +190,18 @@
         <td>fast</td>
     </tr>
 </table>
-<img src="https://razygon.github.io/presentation/img/bs-sc.png" >
   </section>
 
   <section>
     <h3>Analyze the HTML structure</h3>
+     Open http://www.allitebooks.com/, view page source
+     <pre><code class="html" data-trim>
+       <span class="current">1</span>
+       ......
+       <a href="http://www.allitebooks.com/page/5/" title="5">5</a>
+       <span class="extend">...</span>
+    </code></pre>
+
      <pre><code class="python" data-trim>
       # Get the next page url from the current page url
       def get_next_page_url(url):
@@ -212,6 +222,12 @@
 
   <section>
     <h3>Locate the book URL info</h3>
+    <pre><code class="html" data-trim>
+      
+      <h2 class="entry-title">
+        <a href="http://www.allitebooks.com/asp-net-mvc-with-entity-framework-and-css/" rel="bookmark">ASP.NET MVC with Entity Framework and CSS</a>
+      </h2>
+      </code></pre>
      <pre><code class="python" data-trim>
       def get_book_detail_urls(url):
           page = urlopen(url)
@@ -227,6 +243,13 @@
 
   <section>
     <h3>Locate the book info</h3>
+        <pre><code class="html" data-trim>
+    <h1 class="single-title">ASP.NET MVC with Entity Framework and CSS</h1>
+    <div class="book-detail">
+      ......
+      </div>
+    </code></pre>
+
      <pre><code class="python" data-trim>
       # Get the book detail info by book detail url
       def get_book_detail_info(url):
@@ -238,7 +261,7 @@
           isbn_key_tag = book_detail_soup.find(text="Isbn:").parent
           isbn_tag = isbn_key_tag.find_next_sibling()
           isbn = isbn_tag.string.strip() # Remove the whitespace with the strip method
-          return { 'title': title, 'isbn': isbn }
+          return [title, isbn ]
       </code></pre>
   </section>
 
