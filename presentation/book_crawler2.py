@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 from urllib2 import urlopen
 import csv
 
+book_info_list = []
+
 # Get the next page url from the current page url
 def get_next_page_url(url):
     page = urlopen(url)
@@ -20,6 +22,7 @@ def get_next_page_url(url):
 
 # Get the book detail urls by page url
 def get_book_detail_urls(url):
+    print url
     page = urlopen(url)
     soup = BeautifulSoup(page, 'lxml')
     page.close()
@@ -48,23 +51,22 @@ def save_to_csv(booklist):
         a.writerows(booklist)
 
 def crawling(page_url):
-        book_detail_urls = get_book_detail_urls(page_url)
-        for book_detail_url in book_detail_urls:
-            # print(book_detail_url)
-            book_info = get_book_detail_info(book_detail_url)
-            print(book_info)
-            book_info_list.append(book_info)
-            if(len(book_info_list)>6):
-                return
-        next_page_url = get_next_page_url(page_url)
-        if next_page_url is not None:
-            scapping(next_page_url)
-        else:
+    book_detail_urls = get_book_detail_urls(page_url)
+    for book_detail_url in book_detail_urls:
+        # print(book_detail_url)
+        book_info = get_book_detail_info(book_detail_url)
+        print(book_info)
+        book_info_list.append(book_info)
+        if(len(book_info_list)>6):
             return
+    next_page_url = get_next_page_url(page_url)
+    if next_page_url is not None:
+        scapping(next_page_url)
+    else:
+        return
 
 def run():
     url = "http://www.allitebooks.com/programming/net/page/1/"
-    book_info_list = []
     crawling(url)
     print(len(book_info_list))
     save_to_csv(book_info_list)
