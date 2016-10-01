@@ -90,11 +90,11 @@
 
       * Syntax 
         * variable
-          int, string, list, dict  
-        * function 
-          def, class function
+          * int, string, list  
+        * function & method
+          * def, class 
         * control flow
-          if-else, while, for
+          * if-else, while, for
       * Class & Object
       * 3rd Library 
         * pip install
@@ -116,37 +116,7 @@
   </ul>
 </section>
 
-<section>
-      <h3>HTML — HyperText Markup Language</h3>
-      <ul>
-      <li><span > <b>tags</b> </span></li>        
-        <ul>
-        <li><span >eg: &lttitle&gtMy Title&lt/title&gt</span></li>
-        <li><span > enclosed in angle brackets and usually consist of a start tag and an end tag</span></li>
-        <li><span > can be nested</span></li>
-        </ul>
-      <li><span > <b>tag attributes</b> </span></li>
-        <ul>
-        <li><span >eg: &lta href="http://www.google.com/"&gta link to google&lt/a&gt</span></li>
-        <li><span >name/value pairs within the start tag giving extra information about the element</span></li>
-        <li><span >values may be enclosed in '' or ""</span></li>
-       </ul>
-      <li><span ><b>content</b></span></li>
-         the text or other element between the start and end tag
-      </ul>
-  </section>
-
-  <section>
-      <h3>HTTP - HyperText Transfer Protocol</h3>
-
-      <ul>
-      <li> the protocol for transferring html and other WWW data between computers</li>
-      <li> a request-response protocol, usually stateless</li> <!--no matter you request or not it's there-->
-      </ul>
-
-  </section>
-
-    <section >
+<section >
       <h3>urllib(2)</h3>
       <ul>
       <li>A <b>URL</b> is an address on the WWW</li>
@@ -159,6 +129,36 @@
       print myresponse.read()
       </code></pre>
   </section>
+
+<section>
+      <h3>HTTP - HyperText Transfer Protocol</h3>
+
+      <ul>
+      <li> the protocol for transferring html and other WWW data between computers</li>
+      <li> a request-response protocol, usually stateless</li> <!--no matter you request or not it's there-->
+      </ul>
+
+  </section>
+
+<section>
+      <h3>HTML — HyperText Markup Language</h3>
+      &lttag attribute = "attibute"&gtcontent&lt/tag&gt
+      <ul>
+      <li><span > <b>tags</b> </span></li>        
+        <ul>
+        <li><span >eg: &lttitle&gtMy Title&lt/title&gt</span></li>
+        <li><span > enclosed in angle brackets</span></li>
+        <li><span > can be paired</span></li>
+        </ul>
+      <li><span > <b>tag attributes</b> </span></li>
+        <ul>
+        <li><span >eg: &lta href="http://www.google.com/"&gta link to google&lt/a&gt</span></li>
+        <li><span >name/value pairs within the start tag giving extra information about the element</span></li>
+        <li><span >values may be enclosed in '' or ""</span></li>
+       </ul>
+      <li><span ><b>content</b></span></li>
+      </ul>
+  </section>   
 
 </section>
 
@@ -179,14 +179,17 @@
     <table class="table table-bordered table-striped table-condensed">
     <tr>
         <td>BeautifulSoup</td>
+        <td> vs</td>
         <td>Scrapy</td>
     </tr>
     <tr>
         <td>parsing library</td>
+        <td> </td>
   <td>web scraper framework</td>
     </tr>
     <tr>
         <td>slow</td>
+        <td> </td>
         <td>fast</td>
     </tr>
 </table>
@@ -268,25 +271,24 @@
   <section>
     <h3>Make them run</h3>
      <pre><code class="python" data-trim>
+      def crawling(page_url):
+          book_detail_urls = get_book_detail_urls(page_url)
+          for book_detail_url in book_detail_urls:
+              # print(book_detail_url)
+              book_info = get_book_detail_info(book_detail_url)
+              print(book_info)
+              book_info_list.append(book_info)
+              if(len(book_info_list)>6):
+                  return
+          next_page_url = get_next_page_url(page_url)
+          if next_page_url is not None:
+              scapping(next_page_url)
+          else:
+              return
       def run():
           url = "http://www.allitebooks.com/programming/net/page/1/"
           book_info_list = []
-          def scapping(page_url):
-              book_detail_urls = get_book_detail_urls(page_url)
-              for book_detail_url in book_detail_urls:
-                  # print(book_detail_url)
-                  book_info = get_book_detail_info(book_detail_url)
-                  print(book_info)
-                  book_info_list.append(book_info)
-                  if(len(book_info_list)>6):
-                      return
-              next_page_url = get_next_page_url(page_url)
-              if next_page_url is not None:
-                  scapping(next_page_url)
-              else:
-                  return
-      
-          scapping(url)
+          crawling(url)
           print(len(book_info_list))
           save_to_csv(book_info_list)
       </code></pre>
@@ -355,7 +357,7 @@
 <section data-markdown>
     <script type="text/template">
       ##Next?
-
+      Crawl one more feature?
 
     </script>
 </section>
