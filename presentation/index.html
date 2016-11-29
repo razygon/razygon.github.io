@@ -4,10 +4,10 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Python 101</title>
+		<title>Python Basic Series: Web crawling</title>
 
-		<meta name="description" content="Slides featuring a quick introduction to the Python programming language">
-		<meta name="author" content="Martin Brochhaus">
+		<meta name="description" content="Slides featuring a quick introduction to web crawling by Python">
+		<meta name="author" content="Siyang Xiong">
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -89,9 +89,12 @@
       ##Review
 
       * Syntax 
-        * variable 
-        * function 
-        * if-else condition flow
+        * variable
+          * int, string, list  
+        * function & method
+          * def, class 
+        * control flow
+          * if-else, while, for
       * Class & Object
       * 3rd Library 
         * pip install
@@ -113,27 +116,21 @@
   </ul>
 </section>
 
-<section>
-      <h3>HTML — HyperText Markup Language</h3>
+<section >
+      <h3>urllib(2)</h3>
       <ul>
-      <li><span > <b>tags</b> </span></li>        
-        <ul>
-        <li><span >eg: &lttitle&gtMy Title&lt/title&gt</span></li>
-        <li><span > enclosed in angle brackets and usually consist of a start tag and an end tag</span></li>
-        <li><span > can be nested</span></li>
-        </ul>
-      <li><span > <b>tag attributes</b> </span></li>
-        <ul>
-        <li><span >eg: &lta href="http://www.google.com/"&gta link to google&lt/a&gt</span></li>
-        <li><span >name/value pairs within the start tag giving extra information about the element</span></li>
-        <li><span >values may be enclosed in '' or ""</span></li>
-       </ul>
-      <li><span ><b>content</b></span></li>
-         the text or other element between the start and end tag
+      <li>A <b>URL</b> is an address on the WWW</li>
+      <li>pip install urllib2</li>
       </ul>
+      <pre><code class="python" data-trim>
+      import urllib2
+      myrequest = urllib2.Request("http://www.allitebooks.com/")
+      myresponse = urllib2.urlopen(myrequest)
+      print myresponse.read()
+      </code></pre>
   </section>
 
-  <section>
+<section>
       <h3>HTTP - HyperText Transfer Protocol</h3>
 
       <ul>
@@ -143,20 +140,25 @@
 
   </section>
 
-    <section >
-      <h3>urllib(2)</h3>
+<section>
+      <h3>HTML — HyperText Markup Language</h3>
+      &lttag attribute = "attibute"&gtcontent&lt/tag&gt
       <ul>
-      <li>A <b>URL</b> is an address on the WWW</li>
-      <li>pip install urllib2</li>
+      <li><span > <b>tags</b> </span></li>        
+        <ul>
+        <li><span >eg: &lttitle&gtMy Title&lt/title&gt</span></li>
+        <li><span > enclosed in angle brackets</span></li>
+        <li><span > can be paired</span></li>
+        </ul>
+      <li><span > <b>tag attributes</b> </span></li>
+        <ul>
+        <li><span >eg: &lta href="http://www.google.com/"&gta link to google&lt/a&gt</span></li>
+        <li><span >name/value pairs within the start tag giving extra information about the element</span></li>
+        <li><span >values may be enclosed in '' or ""</span></li>
+       </ul>
+      <li><span ><b>content</b></span></li>
       </ul>
-      <pre><code class="python" data-trim>
-      import urllib2
- 
-      myrequest = urllib2.Request("http://www.allitebooks.com/")
-      myresponse = urllib2.urlopen(myrequest)
-      print myresponse.read()
-      </code></pre>
-  </section>
+  </section>   
 
 </section>
 
@@ -173,25 +175,36 @@
   </ul>
   </section>
   <section >
+    <img src="https://razygon.github.io/presentation/img/bs-sc.png" style="max-width: 250px; border-radius: 10px;" >
     <table class="table table-bordered table-striped table-condensed">
     <tr>
         <td>BeautifulSoup</td>
+        <td> vs</td>
         <td>Scrapy</td>
     </tr>
     <tr>
         <td>parsing library</td>
+        <td> </td>
   <td>web scraper framework</td>
     </tr>
     <tr>
         <td>slow</td>
+        <td> </td>
         <td>fast</td>
     </tr>
 </table>
-<img src="https://razygon.github.io/presentation/img/bs-sc.png" >
   </section>
 
   <section>
     <h3>Analyze the HTML structure</h3>
+     Open http://www.allitebooks.com/, view page source
+     <pre><code class="html" data-trim>
+       <span class="current">1</span>
+       ......
+       <a href="http://www.allitebooks.com/page/5/" title="5">5</a>
+       <span class="extend">...</span>
+    </code></pre>
+
      <pre><code class="python" data-trim>
       # Get the next page url from the current page url
       def get_next_page_url(url):
@@ -212,6 +225,12 @@
 
   <section>
     <h3>Locate the book URL info</h3>
+    <pre><code class="html" data-trim>
+      
+      <h2 class="entry-title">
+        <a href="http://www.allitebooks.com/asp-net-mvc-with-entity-framework-and-css/" rel="bookmark">ASP.NET MVC with Entity Framework and CSS</a>
+      </h2>
+      </code></pre>
      <pre><code class="python" data-trim>
       def get_book_detail_urls(url):
           page = urlopen(url)
@@ -227,6 +246,13 @@
 
   <section>
     <h3>Locate the book info</h3>
+        <pre><code class="html" data-trim>
+    <h1 class="single-title">ASP.NET MVC with Entity Framework and CSS</h1>
+    <div class="book-detail">
+      ......
+      </div>
+    </code></pre>
+
      <pre><code class="python" data-trim>
       # Get the book detail info by book detail url
       def get_book_detail_info(url):
@@ -238,32 +264,31 @@
           isbn_key_tag = book_detail_soup.find(text="Isbn:").parent
           isbn_tag = isbn_key_tag.find_next_sibling()
           isbn = isbn_tag.string.strip() # Remove the whitespace with the strip method
-          return { 'title': title, 'isbn': isbn }
+          return [title, isbn ]
       </code></pre>
   </section>
 
   <section>
     <h3>Make them run</h3>
      <pre><code class="python" data-trim>
+      def crawling(page_url):
+          book_detail_urls = get_book_detail_urls(page_url)
+          for book_detail_url in book_detail_urls:
+              # print(book_detail_url)
+              book_info = get_book_detail_info(book_detail_url)
+              print(book_info)
+              book_info_list.append(book_info)
+              if(len(book_info_list)>6):
+                  return
+          next_page_url = get_next_page_url(page_url)
+          if next_page_url is not None:
+              scapping(next_page_url)
+          else:
+              return
       def run():
           url = "http://www.allitebooks.com/programming/net/page/1/"
           book_info_list = []
-          def scapping(page_url):
-              book_detail_urls = get_book_detail_urls(page_url)
-              for book_detail_url in book_detail_urls:
-                  # print(book_detail_url)
-                  book_info = get_book_detail_info(book_detail_url)
-                  print(book_info)
-                  book_info_list.append(book_info)
-                  if(len(book_info_list)>6):
-                      return
-              next_page_url = get_next_page_url(page_url)
-              if next_page_url is not None:
-                  scapping(next_page_url)
-              else:
-                  return
-      
-          scapping(url)
+          crawling(url)
           print(len(book_info_list))
           save_to_csv(book_info_list)
       </code></pre>
@@ -332,7 +357,7 @@
 <section data-markdown>
     <script type="text/template">
       ##Next?
-
+      Crawl one more feature?
 
     </script>
 </section>

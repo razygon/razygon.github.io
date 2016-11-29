@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
-from urllib2 import urlopen
+from urllib.request import urlopen
 import csv
+
+book_info_list = []
 
 # Get the next page url from the current page url
 def get_next_page_url(url):
@@ -64,7 +66,6 @@ def crawling(page_url):
 
 def run():
     url = "http://www.allitebooks.com/programming/net/page/1/"
-    book_info_list = []
     crawling(url)
     print(len(book_info_list))
     save_to_csv(book_info_list)
