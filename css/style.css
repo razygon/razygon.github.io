@@ -1424,7 +1424,7 @@ table {
   width: 100%;
   background: transparent;
   border-collapse: collapse;
-  border-spacing: 0;
+  border-spacing: 1;
   text-align: left; }
   table th {
     font-weight: bold;
