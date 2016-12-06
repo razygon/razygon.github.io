@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://razygon.github.io/"/>
-  <updated>2016-12-06T03:32:42.000Z</updated>
+  <updated>2016-12-06T04:04:34.000Z</updated>
   <id>https://razygon.github.io/</id>
   
   <author>
@@ -16,11 +16,35 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Idapython Plugins</title>
+    <link href="https://razygon.github.io/2016/11/29/Idapython-Plugin/"/>
+    <id>https://razygon.github.io/2016/11/29/Idapython-Plugin/</id>
+    <published>2016-11-29T08:52:43.000Z</published>
+    <updated>2016-12-06T04:04:34.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:&lt;/p&gt;
+
+    
+    </summary>
+    
+      <category term="Tools" scheme="https://razygon.github.io/categories/Tools/"/>
+    
+    
+      <category term="Idapython" scheme="https://razygon.github.io/tags/Idapython/"/>
+    
+  </entry>
+  
+  <entry>
     <title>leetcode note -- 1</title>
     <link href="https://razygon.github.io/2016/11/29/leetcode-note-1/"/>
     <id>https://razygon.github.io/2016/11/29/leetcode-note-1/</id>
     <published>2016-11-29T02:39:52.000Z</published>
-    <updated>2016-12-06T03:32:42.000Z</updated>
+    <updated>2016-12-06T04:16:35.000Z</updated>
     
     <content type="html"><![CDATA[<p>In order to understand more about the Arlgorithm and Data Structure, I start my leetcode journey from today. I will mainly focus on the medium to hard questions. Python and C will be used.</p>
 <table>
@@ -45,10 +69,15 @@
 <tr>
 <td style="text-align:left">5</td>
 <td style="text-align:left"><a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank" rel="external">Longest Palindromic Substring</a></td>
+<td style="text-align:left">Given a string s, find the longest palindromic substring in s. You may assume that the maximum length of s is 1000. The hard part is thinking the special test cases and how to decrease time and space complexity, my original methods is O(N^3), so sad. <a href="http://articles.leetcode.com/longest-palindromic-substring-part-i" target="_blank" rel="external">o(N) solution</a> is brilliant, algorythm is beautiful. Another interesting solution is <a href="https://www.wikiwand.com/en/Longest_common_substring_problem" target="_blank" rel="external">suffix tree</a></td>
+</tr>
+<tr>
+<td style="text-align:left">10</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="external">Regular Expression Matching</a></td>
+<td style="text-align:left">The difficulty is hard, don’t know why. Since python has RE library, this should be quite simple. However, there’s one situation I didn’t consider so didn’t the admin, what if two strings both has ‘.’ ‘*’? for further thinking.</td>
 </tr>
 </tbody>
 </table>
-<p>Given a string s, find the longest palindromic substring in s. You may assume that the maximum length of s is 1000. The hard part is thinking the special test cases and how to decrease time and space complexity, my original methods is O(N^3), so sad. <a href="http://articles.leetcode.com/longest-palindromic-substring-part-i" target="_blank" rel="external">o(N) solution</a> is brilliant, algorythm is beautiful. Another interesting solution is <a href="https://www.wikiwand.com/en/Longest_common_substring_problem" target="_blank" rel="external">suffix tree</a> |<br>|10| <a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="external">Regular Expression Matching</a>| The difficulty is hard, don’t know why. Since python has RE library, this should be quite simple. However, there’s one situation I didn’t consider so didn’t the admin, what if two strings both has ‘.’ ‘*’? for further thinking.  |</p>
 ]]></content>
     
     <summary type="html">
