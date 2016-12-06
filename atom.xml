@@ -72,14 +72,14 @@
     <link href="https://razygon.github.io/2016/10/29/Idapython-Plugin/"/>
     <id>https://razygon.github.io/2016/10/29/Idapython-Plugin/</id>
     <published>2016-10-29T08:52:43.000Z</published>
-    <updated>2016-12-06T04:29:15.000Z</updated>
+    <updated>2016-12-06T04:45:52.000Z</updated>
     
-    <content type="html"><![CDATA[<p>I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:</p>
+    <content type="html"><![CDATA[<p>I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:<br>//idapython plugin</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:&lt;/p&gt;
+      &lt;p&gt;I often use IDA Pro to do analysis, so I developed some plugins. They’re recored here:&lt;br&gt;//idapython plugin&lt;/p&gt;
 
     
     </summary>
