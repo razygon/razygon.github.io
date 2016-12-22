@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://razygon.github.io/"/>
-  <updated>2016-12-06T04:16:35.000Z</updated>
+  <updated>2016-12-22T03:04:47.000Z</updated>
   <id>https://razygon.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://razygon.github.io/2016/11/29/leetcode-note-1/"/>
     <id>https://razygon.github.io/2016/11/29/leetcode-note-1/</id>
     <published>2016-11-29T02:39:52.000Z</published>
-    <updated>2016-12-06T04:16:35.000Z</updated>
+    <updated>2016-12-22T03:04:47.000Z</updated>
     
     <content type="html"><![CDATA[<p>In order to understand more about the Arlgorithm and Data Structure, I start my leetcode journey from today. I will mainly focus on the medium to hard questions. Python and C will be used.</p>
 <table>
@@ -51,6 +51,41 @@
 <td style="text-align:left">10</td>
 <td style="text-align:left"><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="external">Regular Expression Matching</a></td>
 <td style="text-align:left">The difficulty is hard, don’t know why. Since python has RE library, this should be quite simple. However, there’s one situation I didn’t consider so didn’t the admin, what if two strings both has ‘.’ ‘*’? for further thinking.</td>
+</tr>
+<tr>
+<td style="text-align:left">11</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Understand the question is important, water container not the area!!!</td>
+</tr>
+<tr>
+<td style="text-align:left">12</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/integer-to-roman/" target="_blank" rel="external">Integer to Roman</a></td>
+<td style="text-align:left"><a href="http://baike.baidu.com/view/42061.htm" target="_blank" rel="external">http://baike.baidu.com/view/42061.htm</a> explains how to calculate with roman numeral. One solution convert directly, like 900 = XC, one is mine, calculate dynamically. My algorithm is always very straightforward…. hard but always can get the answer</td>
+</tr>
+<tr>
+<td style="text-align:left">15</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/3sum/" target="_blank" rel="external">3Sum</a></td>
+<td style="text-align:left">1. remove duplicated elements 2. sort, and python has a built-in sort 3. python can also make use of array index, same as c 4. python’s list duplicate is not ‘=’ 5.<em>I thought I know algorithms, actually I just know common sence</em></td>
+</tr>
+<tr>
+<td style="text-align:left">16</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/3sum-closest/" target="_blank" rel="external">3Sum Closest</a></td>
+<td style="text-align:left">Very similar to the last one, just change the target to be a dynamic value</td>
+</tr>
+<tr>
+<td style="text-align:left">17</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/letter-combinations-of-a-phone-number/" target="_blank" rel="external">Letter Combinations of a Phone Number</a></td>
+<td style="text-align:left">A good example of recursion. In order to reduce the time complex, the method i used didn’t consider conbination…</td>
+</tr>
+<tr>
+<td style="text-align:left">18</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/4sum/" target="_blank" rel="external">4Sum</a></td>
+<td style="text-align:left">2Sum-&gt;4Sum is a good series to practice find the target number set. The algorithms for the 3 questions are the same, set a target, compare the sum with it, move the left and right pointer. However the larger the set is the more complex it is. For 4Sum, need to notice that the start point of the second fixed number is the first number’s index+1, i+1</td>
+</tr>
+<tr>
+<td style="text-align:left">22</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/generate-parentheses/" target="_blank" rel="external">Generate Parentheses</a></td>
+<td style="text-align:left">use 1 -1 to replace ( ). Notice cant do list append when it’s argument.</td>
 </tr>
 </tbody>
 </table>
