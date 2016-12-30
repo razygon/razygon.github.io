@@ -166,18 +166,16 @@
     <link href="https://razygon.github.io/2016/09/23/in-memorty-of-iOS-kernel-heap-review-5-10/"/>
     <id>https://razygon.github.io/2016/09/23/in-memorty-of-iOS-kernel-heap-review-5-10/</id>
     <published>2016-09-23T02:55:40.000Z</published>
-    <updated>2016-12-30T04:32:02.000Z</updated>
+    <updated>2016-12-30T05:37:08.000Z</updated>
     
     <content type="html"><![CDATA[<p>This article is originally from Stefan Esser’s iOS10 kernel Heap Revisited. I record it with my understandings and for future reference.</p>
-<p>*<br>Content removed.<br>People only see what they want to see. I have mentioned twice “from Stefan Esser”, but were ignored.<br>And I don’t care about the click rate, as the name of my blog “Depot”, I just want to record some work related words.</p>
-<p>It’s a study note, I typed the content down, changed some format, to record the article on my way. Though the change is quite limited, there is.</p>
-<p>However, it’s a good remind and a push, I should be more serious about writting.</p>
-<p>*</p>
+<p>‘’’<br>2016/12/30<br>Content removed.<br>People only see what they want to see. I have mentioned twice “from Stefan Esser”, but were ignored.<br>And I don’t care about the click rate only appriciate researchers’ works, as the name of my blog “Depot”, I just want to store some words.</p>
+<p>It’s a study note. I typed the content down, changed some format, to record the article on my way. Though the change is quite limited, there do exist.</p>
+<p>However, it’s a good remind and a push, I should be more serious about writting.<br>‘’’</p>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li>iOS 10 Kernel Heap Revisited, Stefan Esser.</li>
 </ol>
 <p>[^1]: Always stuck here T__T.</p>
-<p>git filter-branch –force –index-filter ‘git rm –cached –ignore-unmatch /Users/siyangX/Dropbox/mypage/public/2016/09/23/iOS-kernel-heap-review-5-10’ –prune-empty –tag-name-filter cat – –all</p>
 ]]></content>
     
     <summary type="html">
