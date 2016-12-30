@@ -1,3 +1,4 @@
 # razygon.github.io
 
-This is a personal tech blog. Record some tech reviews, some ideas. Suggestions and sharing are very welcomed!
+I can't remember how many tech blogs I have, due to lazy, they all are dead.
+Just hope this one won't be like its bros.
