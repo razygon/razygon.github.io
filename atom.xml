@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://razygon.github.io/"/>
-  <updated>2017-03-23T04:13:42.000Z</updated>
+  <updated>2017-03-23T04:17:55.000Z</updated>
   <id>https://razygon.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://razygon.github.io/2016/11/29/leetcode-note-1/"/>
     <id>https://razygon.github.io/2016/11/29/leetcode-note-1/</id>
     <published>2016-11-29T02:39:52.000Z</published>
-    <updated>2017-03-23T04:13:42.000Z</updated>
+    <updated>2017-03-23T04:17:55.000Z</updated>
     
     <content type="html"><![CDATA[<p>In order to understand more about the Arlgorithm and Data Structure, I start my leetcode journey from today. I will mainly focus on the medium to hard questions. Python and C will be used.</p>
 <table>
@@ -130,11 +130,20 @@
 <tr>
 <td style="text-align:left">49</td>
 <td style="text-align:left"><a href="https://leetcode.com/problems/anagrams/" target="_blank" rel="external">Group Anagrams</a></td>
-<td style="text-align:left">I thought about using numbers “‘a’:1,</td>
+<td style="text-align:left">I thought about using numbers “‘a’:1,’b’:2,’c’:3,’d’:5,” to do it, however this just makes it a mathimatical problem that is more complicated….</td>
+</tr>
+<tr>
+<td style="text-align:left">50</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/powx-n/" target="_blank" rel="external">Pow</a></td>
+<td style="text-align:left">Note conditions, float? negtive? negtive divide? -1/2 = -1, special input n, 0 -1; some binary tree idea</td>
+</tr>
+<tr>
+<td style="text-align:left">54</td>
+<td style="text-align:left"><a href="https://leetcode.com/problems/spiral-matrix/#/description" target="_blank" rel="external">Spiral Matrix</a></td>
+<td style="text-align:left">edge counting</td>
 </tr>
 </tbody>
 </table>
-<p>‘b’:2,<br>‘c’:3,<br>‘d’:5,<br>“ to do it, however this just makes it a mathimatical problem that is more complicated….|<br>|50|<a href="https://leetcode.com/problems/powx-n/" target="_blank" rel="external">Pow</a>| Note conditions, float? negtive? negtive divide? -1/2 = -1, special input n, 0 -1; some binary tree idea|<br>|54|<a href="https://leetcode.com/problems/spiral-matrix/#/description" target="_blank" rel="external">Spiral Matrix</a>|edge counting|</p>
 ]]></content>
     
     <summary type="html">
