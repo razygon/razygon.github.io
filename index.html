@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <title>Gym Tracker</title>
+  <!-- Lightweight CSS -->
+  <style>
+    :root{
+      --bg:#0b1020; --card:#131a33; --muted:#8093b0; --text:#e6eefc; --acc:#0ea5e9; --accent:#22c55e; --warn:#f59e0b; --danger:#f43f5e;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+    header{position:sticky;top:0;background:linear-gradient(180deg,#0e142a,rgba(14,20,42,.7));backdrop-filter: blur(6px);z-index:2;border-bottom:1px solid #1e284d}
+    .bar{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;max-width:900px;margin:0 auto}
+    .brand{font-weight:700;letter-spacing:.3px}
+    .btn{border:1px solid #2a376b;background:#1a2347;color:var(--text);padding:.5rem .75rem;border-radius:.75rem;cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(180deg,#0ea5e9,#0284c7);border-color:#0ea5e9;color:white}
+    .btn.ghost{background:transparent;border-color:#33406e}
+    .chip{border:1px solid #2a376b;background:#162042;color:var(--text);padding:.35rem .6rem;border-radius:999px;cursor:pointer;font-size:.9rem}
+    .chip.active{outline:2px solid #0ea5e9}
+    main{max-width:900px;margin:1rem auto;padding:0 1rem;display:grid;gap:1rem}
+    .tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+    .tab{padding:.5rem .75rem;border-radius:.75rem;background:#141b36;border:1px solid #2a376b;cursor:pointer}
+    .tab.active{background:#0f1731;outline:2px solid #0ea5e9}
+    .card{background:linear-gradient(180deg,#0f1731 0%, #0b1327 100%);border:1px solid #1f2a52;border-radius:1rem;padding:1rem}
+    .grid{display:grid;gap:.75rem}
+    .grid.col2{grid-template-columns:1fr 1fr}
+    @media (max-width:720px){ .grid.col2{grid-template-columns:1fr} }
+    .muted{color:var(--muted)}
+    input, select, textarea{width:100%;padding:.6rem;border-radius:.6rem;border:1px solid #2a376b;background:#0b1327;color:var(--text)}
+    label{font-size:.92rem;color:#a9b7d7}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.5rem;border-bottom:1px solid #1c264b;text-align:left}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem}
+    .day{aspect-ratio:1;padding:.4rem;border:1px solid #1f2a52;border-radius:.6rem;position:relative;background:#0e1630;cursor:pointer}
+    .day .date{position:absolute;top:.35rem;left:.4rem;font-size:.85rem;color:#a9b7d7}
+    .badges{position:absolute;bottom:.35rem;left:.35rem;display:flex;gap:.3rem}
+    .badge{font-size:.7rem;border:1px solid #34457c;border-radius:.5rem;padding:.1rem .3rem}
+    .badge.p{background:#143149;border-color:#0ea5e9;color:#8fd5ff}
+    .badge.l{background:#153a2b;border-color:#22c55e;color:#8effc2}
+    .row{display:flex;gap:.5rem;align-items:center}
+    .flex{display:flex;gap:.5rem}
+    .right{margin-left:auto}
+    .nowrap{white-space:nowrap}
+    .title{font-weight:700}
+    .pr{color:#ffd166}
+    a{color:#7dc8ff}
+    .hint{font-size:.85rem;color:#9db0d3}
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div class="brand">🏋️ Gym Tracker</div>
+      <button id="installBtn" class="btn ghost right">Install</button>
+      <button id="exportBtn" class="btn">Export JSON</button>
+      <label class="btn ghost" for="importFile">Import</label>
+      <input id="importFile" type="file" accept="application/json" style="display:none" />
+    </div>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab active" data-tab="home">Calendar</button>
+      <button class="tab" data-tab="planner">Planner</button>
+      <button class="tab" data-tab="logger">Logger</button>
+      <button class="tab" data-tab="library">Library</button>
+      <button class="tab" data-tab="prs">PRs</button>
+      <button class="tab" data-tab="analytics">Analytics</button>
+    </div>
+
+    <!-- HOME / CALENDAR -->
+    <section id="home" class="card grid">
+      <div class="row">
+        <div class="title">Calendar</div>
+        <div class="right flex">
+          <button id="prevMonth" class="btn ghost">◀</button>
+          <div id="monthLabel" class="nowrap"></div>
+          <button id="nextMonth" class="btn ghost">▶</button>
+        </div>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <div id="dayDetails"></div>
+    </section>
+
+    <!-- PLANNER -->
+    <section id="planner" class="card grid" style="display:none">
+      <div class="grid col2">
+        <div>
+          <div class="row"><div class="title">Plan a Day</div><div class="right"><input type="date" id="planDate"></div></div>
+          <div id="plannedList"></div>
+        </div>
+        <div>
+          <div class="title">Add from Movement Library</div>
+          <input id="libSearch" placeholder="Search movement or tag...">
+          <div id="libResults" class="grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGGER -->
+    <section id="logger" class="card grid" style="display:none">
+      <div class="grid col2">
+        <div>
+          <div class="row"><div class="title">Log Workout</div><div class="right"><input type="date" id="logDate"></div></div>
+          <label for="logMovement">Movement</label>
+          <select id="logMovement"></select>
+          <div id="setRows" class="grid"></div>
+          <button id="addSet" class="btn ghost">+ Add set</button>
+          <div class="grid" style="margin-top:.5rem">
+            <label for="feeling">Feeling</label>
+            <select id="feeling">
+              <option value="easy">Easy</option>
+              <option value="manageable" selected>Manageable</option>
+              <option value="hard">Hard</option>
+            </select>
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
+            <button id="saveLog" class="btn primary">Save Log</button>
+          </div>
+        </div>
+        <div>
+          <div class="title">Today / Selected Day Logs</div>
+          <div id="logsForDay"></div>
+        </div>
+      </div>
+      <div class="hint">Tip: choose a date and pick a movement (planned ones appear first). Add multiple sets with weight/reps. We'll mark 🏆 when a new PR (Epley 1RM) is hit.</div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section id="library" class="card grid" style="display:none">
+      <div class="row">
+        <div class="title">Movement Library</div>
+        <button id="addMovementBtn" class="btn right">+ New Movement</button>
+      </div>
+      <div id="libraryList" class="grid"></div>
+      <dialog id="movementDlg">
+        <form method="dialog" id="movementForm" class="grid" style="min-width: min(520px, 96vw)">
+          <div class="title" id="dlgTitle">New Movement</div>
+          <input type="hidden" id="movId">
+          <label>Name<input id="movName" required></label>
+          <label>Picture URL<input id="movPic"></label>
+          <label>Target parts (comma-separated tags)<input id="movTags" placeholder="Chest, Shoulders"></label>
+          <label>Instructions<textarea id="movInstr" rows="4"></textarea></label>
+          <menu class="row" style="justify-content:flex-end">
+            <button value="cancel" class="btn ghost">Cancel</button>
+            <button id="saveMovement" value="default" class="btn primary">Save</button>
+          </menu>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- PRs -->
+    <section id="prs" class="card grid" style="display:none">
+      <div class="title">Personal Records (Epley 1RM Estimate)</div>
+      <div id="prsList"></div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="analytics" class="card grid" style="display:none">
+      <div class="row">
+        <div class="title">Weekly Volume (kg)</div>
+        <div class="right" id="tagChips"></div>
+      </div>
+      <canvas id="volumeChart" height="120"></canvas>
+      <div class="hint">Body-part filter applies to movements that include those tags. Volume = Σ(weight × reps).</div>
+    </section>
+  </main>
+
+  <script>
+    // PWA install button
+    let deferredPrompt=null;
+    window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='inline-block'});
+    document.getElementById('installBtn').addEventListener('click', async ()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt=null;
+      document.getElementById('installBtn').style.display='none';
+    });
+    // Register Service Worker
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
